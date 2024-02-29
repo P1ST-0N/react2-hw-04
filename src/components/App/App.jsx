@@ -4,21 +4,36 @@ import axios from "axios";
 import SearchBar from "../SearchBar/SearchBar";
 import ImageGallery from "../ImageGallery/ImageGallery";
 
+// import { fetchImages } from "../../api/rest-api";
+
 import "./App.module.css";
+import { fetchImages } from "../../api/rest-api";
 
 function App() {
   const accessKey = "k9kpNJyVvFboSrbIRzaVdaeBi6TsPMLBriqEUPLwSX8";
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [articles, setArticles] = useState([]);
+  const [images, setImages] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const searchImages = async (newQuery) => {
-    setQuery(newQuery);
-    setArticles([]);
-    setPage(1);
-  };
+  // useEffect(() => {
+  //   const getImages = async () => {
+  //     try {
+  //       setLoading(true);
+  //       setImages([]);
+  //       const imageData = await fetchImages(query, page);
+  //       setImages((previmages) => {
+  //         return [...previmages, ...imageData];
+  //       });
+  //     } catch (error) {
+  //       setError(true);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   getImages();
+  // }, [page, query]);
 
   useEffect(() => {
     if (query === "") {
@@ -34,7 +49,7 @@ function App() {
           `https://api.unsplash.com/search/photos?client_id=${accessKey}&page=1&query=${query}&per_page=12`
         );
 
-        setArticles((prevArticles) => [...prevArticles, ...data.results]);
+        setImages((previmages) => [...previmages, ...data.results]);
       } catch (error) {
         setError(true);
       } finally {
@@ -44,17 +59,23 @@ function App() {
       const response = await axios.get(
         `https://api.unsplash.com/photos/?client_id=${accessKey}`
       );
-      setArticles(response.data.hits);
+      setImages(response.data.hits);
     }
     fetchData();
   }, [query, page]);
+
+  const searchImages = async (newQuery) => {
+    setQuery(newQuery);
+    setImages([]);
+    setPage(1);
+  };
 
   return (
     <>
       <div>
         <SearchBar onSearch={searchImages} />
 
-        <ImageGallery items={articles} />
+        <ImageGallery items={images} />
       </div>
     </>
   );
