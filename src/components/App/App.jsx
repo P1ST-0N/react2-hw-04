@@ -3,11 +3,13 @@ import axios from "axios";
 
 import SearchBar from "../SearchBar/SearchBar";
 import ImageGallery from "../ImageGallery/ImageGallery";
+import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
 
 // import { fetchImages } from "../../api/rest-api";
 
 import "./App.module.css";
-import { fetchImages } from "../../api/rest-api";
 
 function App() {
   const accessKey = "k9kpNJyVvFboSrbIRzaVdaeBi6TsPMLBriqEUPLwSX8";
@@ -70,14 +72,20 @@ function App() {
     setPage(1);
   };
 
-  return (
-    <>
-      <div>
-        <SearchBar onSearch={searchImages} />
+  const handleLoadMore = () => {
+    setPage(page + 1);
+  };
 
-        <ImageGallery items={images} />
-      </div>
-    </>
+  return (
+    <div>
+      <SearchBar onSearch={searchImages} />
+      {error && <ErrorMessage />}
+
+      {loading && <Loader />}
+
+      <ImageGallery items={images} />
+      <LoadMoreBtn onClick={handleLoadMore} />
+    </div>
   );
 }
 
