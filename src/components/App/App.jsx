@@ -1,92 +1,89 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 import SearchBar from "../SearchBar/SearchBar";
 import ImageGallery from "../ImageGallery/ImageGallery";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
+import ImageModal from "../ImageModal/ImageModal";
 
-// import { fetchImages } from "../../api/rest-api";
+import searchImages from "../../api/rest-api";
 
-import "./App.module.css";
+// import "./App.module.css";
 
-function App() {
-  const accessKey = "k9kpNJyVvFboSrbIRzaVdaeBi6TsPMLBriqEUPLwSX8";
-  const [query, setQuery] = useState("");
+const App = () => {
+  // const accessKey = "k9kpNJyVvFboSrbIRzaVdaeBi6TsPMLBriqEUPLwSX8";
+  const [searchValue, setSearchValue] = useState("");
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // useEffect(() => {
-  //   const getImages = async () => {
-  //     try {
-  //       setLoading(true);
-  //       setImages([]);
-  //       const imageData = await fetchImages(query, page);
-  //       setImages((previmages) => {
-  //         return [...previmages, ...imageData];
-  //       });
-  //     } catch (error) {
-  //       setError(true);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   getImages();
-  // }, [page, query]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState({});
 
   useEffect(() => {
-    if (query === "") {
-      return;
-    }
-
-    async function fetchData() {
+    const fetchImages = async () => {
       try {
-        setError(false);
-        setLoading(true);
+        const data = await searchImages(searchValue, page);
 
-        const { data } = await axios.get(
-          `https://api.unsplash.com/search/photos?client_id=${accessKey}&page=1&query=${query}&per_page=12`
-        );
-
-        setImages((previmages) => [...previmages, ...data.results]);
+        setImages((prev) => [...prev, ...data]);
       } catch (error) {
+        console.error("Произошла ошибка при загрузке изображений:", error);
         setError(true);
       } finally {
         setLoading(false);
       }
-
-      const response = await axios.get(
-        `https://api.unsplash.com/photos/?client_id=${accessKey}`
-      );
-      setImages(response.data.hits);
+    };
+    if (searchValue === "") {
+      return;
     }
-    fetchData();
-  }, [query, page]);
+    setLoading(true);
+    fetchImages();
+  }, [page, searchValue]);
 
-  const searchImages = async (newQuery) => {
-    setQuery(newQuery);
+  const onSubmit = (query) => {
+    if (query === searchValue) {
+      return;
+    }
+    setSearchValue(query);
     setImages([]);
     setPage(1);
   };
 
-  const handleLoadMore = () => {
+  const onClick = () => {
     setPage(page + 1);
+  };
+
+  const onModalOpen = (content) => {
+    setModalContent(content);
+    setShowModal(true);
+  };
+
+  const onCloseModal = () => {
+    setShowModal(false);
   };
 
   return (
     <div>
-      <SearchBar onSearch={searchImages} />
+      <SearchBar onSubmit={onSubmit} />
+
+      {images.length > 0 && (
+        <ImageGallery items={images} onModalOpen={onModalOpen} />
+      )}
+
       {error && <ErrorMessage />}
 
       {loading && <Loader />}
 
-      <ImageGallery items={images} />
-      <LoadMoreBtn onClick={handleLoadMore} />
+      {images.length !== 0 && (
+        <LoadMoreBtn onClick={onClick}>Load More</LoadMoreBtn>
+      )}
+
+      {showModal && (
+        <ImageModal onCloseModal={onCloseModal} content={modalContent} />
+      )}
     </div>
   );
-}
+};
 
 export default App;

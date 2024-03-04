@@ -1,28 +1,22 @@
-import { useState } from "react";
-import Modal from "../ImageModal/ImageModal";
+import css from "./ImageCard.module.css";
 
-const ImageCard = ({ webformatURL, largeImageURL }) => {
-  const [showModal, setShowModal] = useState(false);
-
-  const toggleModal = () => setShowModal((state) => !state);
-
+const ImageCard = ({ item: { urls, alt_description, user, likes } }) => {
   return (
-    <>
-      <li onClick={toggleModal}>
-        <img src={webformatURL} alt="Search result" />
-      </li>
-      {showModal && (
-        <Modal largeImageURL={largeImageURL} toggleModal={toggleModal} />
-      )}
-    </>
+    <div>
+      <img
+        className={css.cardImg}
+        src={urls.small}
+        alt={alt_description}
+        width={"340px"}
+        height={"300px"}
+      />
+      <div className={css.cardInfo}>
+        <p>Photo by:{user.name}</p>
+        <p>Likes:{likes}</p>
+        <p></p>
+      </div>
+    </div>
   );
 };
 
 export default ImageCard;
-
-{
-  /* <div>
-  <img src={url} alt={altName} />
-  <p>Likes: {likes}</p>
-</div>; */
-}

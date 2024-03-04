@@ -1,33 +1,39 @@
-import { useEffect } from "react";
+import ReactModal from "react-modal";
+import css from "./ImageModal.module.css";
 
-const Modal = ({ largeImageURL, toggleModal }) => {
-  useEffect(() => {
-    const handleEscClick = (event) => {
-      if (event.key !== "Escape") return;
+ReactModal.setAppElement("#root");
+const modalStyle = {
+  overlay: { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+  content: {
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "transparent",
+    overflow: "hidden",
+    height: "100%",
+    border: "none",
+  },
+};
 
-      toggleModal();
-    };
-
-    document.addEventListener("keydown", handleEscClick);
-
-    return () => {
-      document.removeEventListener("keydown", handleEscClick);
-    };
-  }, [toggleModal]);
-
-  const handleClick = (event) => {
-    if (event.target === event.currentTarget) {
-      toggleModal();
-    }
-  };
-
+const ImageModal = ({ onCloseModal, content }) => {
   return (
-    <div onClick={handleClick}>
-      <div>
-        <img src={largeImageURL} alt="Search result" />
-      </div>
-    </div>
+    <>
+      <ReactModal
+        isOpen={true}
+        onRequestClose={onCloseModal}
+        shouldCloseOnEsc={true}
+        style={modalStyle}
+      >
+        <img
+          className={css.img}
+          src={content.urls.regular}
+          alt={content.alt_description}
+          width={"100%"}
+          height={"100%"}
+        />
+      </ReactModal>
+    </>
   );
 };
 
-export default Modal;
+export default ImageModal;
